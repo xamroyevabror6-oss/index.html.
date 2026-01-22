@@ -107,10 +107,22 @@ canvas{
   animation:pulse 1.6s infinite;
 }
 
-@keyframes pulse{
-  0%{box-shadow:0 0 20px #00ffcc;}
-  50%{box-shadow:0 0 55px #00ffcc;}
-  100%{box-shadow:0 0 20px #00ffcc;}
+/* ===== RESTART BUTTON ===== */
+#restartBtn{
+  padding:18px 45px;
+  font-size:26px;
+  font-weight:700;
+  color:#000;
+  background:linear-gradient(135deg,#ff3b3b,#ff8a00);
+  border:none;
+  border-radius:26px;
+  cursor:pointer;
+  box-shadow:0 0 25px #ff3b3b,0 0 60px #ff8a00;
+  display:none;
+  position:absolute;
+  top:55%;
+  left:50%;
+  transform:translateX(-50%);
 }
 
 /* ===== GAME OVER ===== */
@@ -139,9 +151,11 @@ canvas{
 @media(max-width:480px){
   canvas{width:92vw;height:82vh;}
   #startBtn{font-size:24px;padding:18px 40px;}
+  #restartBtn{font-size:22px;padding:16px 35px;}
 }
 </style>
 </head>
+
 <link rel="manifest" href="manifest.json">
 
 <body>
@@ -150,7 +164,9 @@ canvas{
 <div id="hud">Score: 0</div>
 <div id="author">Xamroyev Abror</div>
 <div id="message">Game Over</div>
+
 <button id="startBtn">Boshlash</button>
+<button id="restartBtn">Restart</button>
 
 <script>
 const canvas=document.getElementById("game");
@@ -158,6 +174,8 @@ const ctx=canvas.getContext("2d");
 const hud=document.getElementById("hud");
 const msg=document.getElementById("message");
 const startBtn=document.getElementById("startBtn");
+const restartBtn=document.getElementById("restartBtn");
+const author=document.getElementById("author");
 
 let tiles=[];
 let score=0;
@@ -181,6 +199,7 @@ function update(){
   if(tiles.length && tiles[0].y>canvas.height){
     gameOver=true;
     msg.style.display="block";
+    restartBtn.style.display="block";
   }
 
   draw();
@@ -210,6 +229,7 @@ canvas.addEventListener("mousedown",e=>{
   }
   gameOver=true;
   msg.style.display="block";
+  restartBtn.style.display="block";
 });
 
 function spawn(){
@@ -222,12 +242,28 @@ startBtn.onclick=()=>{
   startBtn.style.display="none";
   canvas.style.display="block";
   hud.style.display="block";
-  document.getElementById("author").style.display="block";
+  author.style.display="block";
   tiles=[];
   score=0;
   speed=2;
   gameOver=false;
   msg.style.display="none";
+  restartBtn.style.display="none";
+  update();
+  spawn();
+};
+
+restartBtn.onclick=()=>{
+  tiles=[];
+  score=0;
+  speed=2;
+  gameOver=false;
+  hud.innerHTML="Score: 0";
+  msg.style.display="none";
+  restartBtn.style.display="none";
+  canvas.style.display="block";
+  hud.style.display="block";
+  author.style.display="block";
   update();
   spawn();
 };
