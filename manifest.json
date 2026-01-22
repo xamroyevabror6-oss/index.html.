@@ -1,0 +1,12 @@
+{
+  "background_color": "rgb(255, 255, 255)",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Piano tiles rapid",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Piano",
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "description": "Juda zor uyin piano"
+}
