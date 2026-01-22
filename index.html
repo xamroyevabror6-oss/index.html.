@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>Piano Tiles Rapid</title>
+
+<style>
+/* ===== RESET ===== */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* ===== BODY ===== */
+body{
+  width:100vw;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:radial-gradient(circle at top,#00ffd5,#020024 45%,#000 80%);
+  overflow:hidden;
+  font-family:Segoe UI,Arial,sans-serif;
+}
+
+/* ===== ANIMATED BACKGROUND ===== */
+body::after{
+  content:"";
+  position:absolute;
+  width:200%;
+  height:200%;
+  background:repeating-linear-gradient(
+    45deg,
+    rgba(0,255,204,.06),
+    rgba(0,255,204,.06) 12px,
+    transparent 12px,
+    transparent 24px
+  );
+  animation:bgMove 25s linear infinite;
+  pointer-events:none;
+}
+
+@keyframes bgMove{
+  from{transform:translate(0,0);}
+  to{transform:translate(-50%,-50%);}
+}
+
+/* ===== CANVAS ===== */
+canvas{
+  width:360px;
+  height:600px;
+  background:linear-gradient(to bottom,#000,#070707);
+  border-radius:28px;
+  box-shadow:
+    0 0 25px #00ffcc,
+    0 0 60px #00ffcc,
+    inset 0 0 35px rgba(0,255,204,.25);
+  display:none;
+  animation:gameIn .6s ease;
+}
+
+@keyframes gameIn{
+  from{transform:scale(.75);opacity:0;}
+  to{transform:scale(1);opacity:1;}
+}
+
+/* ===== HUD ===== */
+#hud{
+  position:absolute;
+  top:15px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:10px 22px;
+  font-size:20px;
+  color:#00ffcc;
+  background:rgba(0,0,0,.65);
+  border-radius:20px;
+  box-shadow:0 0 15px #00ffcc;
+  display:none;
+}
+
+/* ===== AUTHOR ===== */
+#author{
+  position:absolute;
+  bottom:15px;
+  right:18px;
+  font-size:14px;
+  color:#ffffffaa;
+  text-shadow:0 0 6px #00ffcc;
+  display:none;
+}
+
+/* ===== START BUTTON ===== */
+#startBtn{
+  padding:22px 55px;
+  font-size:30px;
+  font-weight:700;
+  color:#000;
+  background:linear-gradient(135deg,#00ffcc,#00bfa5);
+  border:none;
+  border-radius:26px;
+  cursor:pointer;
+  box-shadow:0 0 25px #00ffcc,0 0 60px #00ffcc;
+  animation:pulse 1.6s infinite;
+}
+
+@keyframes pulse{
+  0%{box-shadow:0 0 20px #00ffcc;}
+  50%{box-shadow:0 0 55px #00ffcc;}
+  100%{box-shadow:0 0 20px #00ffcc;}
+}
+
+/* ===== GAME OVER ===== */
+#message{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:34px;
+  font-weight:bold;
+  color:#ff3b3b;
+  text-shadow:0 0 12px #ff3b3b,0 0 30px red;
+  display:none;
+  animation:shake .4s infinite;
+}
+
+@keyframes shake{
+  0%{transform:translate(-50%,-50%) translateX(0);}
+  25%{transform:translate(-50%,-50%) translateX(-4px);}
+  50%{transform:translate(-50%,-50%) translateX(4px);}
+  75%{transform:translate(-50%,-50%) translateX(-4px);}
+  100%{transform:translate(-50%,-50%) translateX(0);}
+}
+
+/* ===== MOBILE ===== */
+@media(max-width:480px){
+  canvas{width:92vw;height:82vh;}
+  #startBtn{font-size:24px;padding:18px 40px;}
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="game" width="400" height="600"></canvas>
+<div id="hud">Score: 0</div>
+<div id="author">Xamroyev Abror</div>
+<div id="message">Game Over</div>
+<button id="startBtn">Boshlash</button>
+
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+const hud=document.getElementById("hud");
+const msg=document.getElementById("message");
+const startBtn=document.getElementById("startBtn");
+
+let tiles=[];
+let score=0;
+let speed=2;
+let gameOver=false;
+
+const cols=4;
+const tileW=canvas.width/cols;
+const tileH=150;
+
+function addTile(){
+  const col=Math.floor(Math.random()*cols);
+  tiles.push({x:col*tileW,y:-tileH});
+}
+
+function update(){
+  if(gameOver)return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  tiles.forEach(t=>t.y+=speed);
+
+  if(tiles.length && tiles[0].y>canvas.height){
+    gameOver=true;
+    msg.style.display="block";
+  }
+
+  draw();
+  requestAnimationFrame(update);
+}
+
+function draw(){
+  tiles.forEach(t=>{
+    ctx.fillStyle="#00ffcc";
+    ctx.shadowBlur=20;
+    ctx.shadowColor="#00ffcc";
+    ctx.fillRect(t.x,t.y,tileW,tileH);
+  });
+}
+
+canvas.addEventListener("mousedown",e=>{
+  const x=e.offsetX,y=e.offsetY;
+  for(let i=0;i<tiles.length;i++){
+    const t=tiles[i];
+    if(x>t.x&&x<t.x+tileW&&y>t.y&&y<t.y+tileH){
+      tiles.splice(i,1);
+      score++;
+      speed+=0.1;
+      hud.innerHTML="Score: "+score;
+      return;
+    }
+  }
+  gameOver=true;
+  msg.style.display="block";
+});
+
+function spawn(){
+  if(gameOver)return;
+  if(Math.random()<0.03)addTile();
+  requestAnimationFrame(spawn);
+}
+
+startBtn.onclick=()=>{
+  startBtn.style.display="none";
+  canvas.style.display="block";
+  hud.style.display="block";
+  document.getElementById("author").style.display="block";
+  tiles=[];
+  score=0;
+  speed=2;
+  gameOver=false;
+  msg.style.display="none";
+  update();
+  spawn();
+};
+</script>
+
+</body>
+</html>
